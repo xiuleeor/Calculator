@@ -3,21 +3,52 @@ import { useState } from "react";
 
 
 function Calculator(params) {
-  const[display, setDisplay] = useState("0");
-  const [fullCalculation, setFullCalculation] = useState("")
+  const[display, setDisplay] = useState("");
+  const [currentMember, setCurrentMember] = useState("0");
+  let minus = 1;
 
   const handleNumber = (event) => {
     const number = event.target.textContent;
-    if (display==="0") {
+    if (currentMember==="0") {
+      setCurrentMember(number);
       setDisplay(number);
     }else{
       setDisplay(display + number);
+      if ((currentMember==="+" || currentMember==="*" || currentMember==="/" || currentMember==="-")) {
+        setCurrentMember(number);
+      }else{
+        setCurrentMember(currentMember + number);
+      }
     }
   };
 
   const handleOperator = (event) => {
-    const operator = event.target.textContent;
-    setDisplay(display + " " + operator + " " );
+    let operator = event.target.textContent;
+    const array = display.split(" ");
+    console.log(array);
+    const lastElement = array[array.length-1];
+    console.log(lastElement);
+    if (lastElement === "." || lastElement.includes(".")) {
+      return
+    }
+      setCurrentMember(operator); 
+    if (currentMember === "-") {
+      minus++;
+    }
+    if (minus===2) {
+      operator = "+";   
+      setCurrentMember("+");   
+      minus=1;
+    }
+    if ((array[array.length-2]==="+" || array[array.length-2]==="*" || array[array.length-2]==="/" || array[array.length-2]==="-") && !Number(array[array.length-1])) {
+      console.log(array +" antes");
+      array.splice(array.length-2, 1, operator);
+      console.log(operator+"op")
+      console.log(array+" despues"); 
+      setDisplay(array.join(' '));
+    }else{
+      setDisplay(display + " " + operator + " " );
+    }
   };
 
   const handleEqual = () => {
@@ -25,26 +56,32 @@ function Calculator(params) {
   } ;
   
   const handleDecimalClick = () => {
-    const array = display.split(" ");
+    const array = currentMember.split("");
+    console.log(array);
     const lastElement = array[array.length-1];
-    if (lastElement === "+" || lastElement === "-" || lastElement === "*" || lastElement === "/") {
+    console.log(lastElement);
+    if (lastElement === "+" || lastElement === "-" || lastElement === "*" || lastElement === "/" || array[array.length-1] === ".") {
       return; 
     }
+    console.log(lastElement);
     if (!lastElement.includes(".")) {
       setDisplay(display + ".");
+      setCurrentMember(currentMember + ".")
     }
   };
 
+
   const handleClear = () => {
-    setDisplay("0");
+    setDisplay(" ");
+    setCurrentMember("0");
   }
   
   return(
     <div className="calculator">
-      <div>{fullCalculation}</div>
       <div id="display" className="row">{display}</div>
+      <div id="display" className="row">{currentMember}</div>
       <div id="clear"  onClick={handleClear}>AC</div>
-      <div id="seven" onClick={handleNumber}>7</div>
+      <div id="seven" onClick={ handleNumber}>7</div>
       <div id="eigth" onClick={handleNumber}>8</div>
       <div id="nine" onClick={handleNumber}>9</div>
       <div id="multiply" onClick={handleOperator}>*</div>
